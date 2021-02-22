@@ -12,15 +12,18 @@ if not query or not platform:
     print('please enter required information to procced')
     exit()
 
-driver = webdriver.Chrome()
+chrome = webdriver.Chrome()
 
-driver.get(f'https://{platform}.com')
-driver.maximize_window()
+chrome.get(f'https://{platform}.com')
+
+# verify whether we are on required platfrom or not
+assert platform.casefold() in chrome.title.casefold(), 'problem in opening platform'
+chrome.maximize_window()
 
 if platform == 'youtube':
-    search_box = driver.find_element_by_id('search')
+    search_box = chrome.find_element_by_id('search')
 elif platform in ['github','stackoverflow','google']:
-    search_box = driver.find_element_by_name('q')
+    search_box = chrome.find_element_by_name('q')
 else:
     print('the platform you are looking for is not in our list try something else')
     exit()
@@ -28,3 +31,7 @@ else:
 if search_box:
     search_box.send_keys(query)
     search_box.send_keys(Keys.RETURN)
+
+    assert 'no results found' not in chrome.page_source.casefold() or 'did not match any documents' not in chrome.page_source.casefold() , "Query isn't proper"
+    
+chrome.close()
